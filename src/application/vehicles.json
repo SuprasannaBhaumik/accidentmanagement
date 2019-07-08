@@ -1,0 +1,30 @@
+{ "vehicles" :[{
+	"vehicleName": "Mercedes Benz AMG",
+	"vin": "WEB3568937GDCB",
+	"accidentTime": {
+		"date": "02/05/2015",
+		"time": "23:32"
+	},
+	"location": {
+		"latitude": 12,
+		"longitude": 45
+	},
+	"video": {
+
+	}
+}, {
+	"vehicleName": "Sprinter",
+	"vin": "TASDNFS3464675674",
+	"accidentTime": {
+		"date": "26/05/2016",
+		"time": "23:30"
+	},
+	"location": {
+		"latitude": 45,
+		"longitude": 65
+	},
+	"video": {
+
+	}
+}]
+}
