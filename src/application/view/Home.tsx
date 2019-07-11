@@ -15,7 +15,7 @@ interface InternalState {
 	popUp: boolean;
 	mapData: any;
 	video: any;
-	url: any;
+	videoUrl: string;
 	playing: boolean;
 	errorMessage: string;
 	errorState: boolean;
@@ -35,7 +35,7 @@ class Home extends React.Component<Props, InternalState> {
 			popUp: false,
 			mapData: {},
 			video: {},
-			url: 'https://daimlertrucksna.blob.core.windows.net/dtna/falls.webm',
+			videoUrl: '',
 			playing: false,
 			errorMessage: '',
 			errorState: false
@@ -44,7 +44,6 @@ class Home extends React.Component<Props, InternalState> {
 		this.filterTable = this.filterTable.bind(this);
 		this.imageClicked = this.imageClicked.bind(this);
 		this.closeButton = this.closeButton.bind(this);
-		this.onChooseFile = this.onChooseFile.bind(this);
 		this.playError = this.playError.bind(this);
 		this.renderMarkers = this.renderMarkers.bind(this);
 	}
@@ -56,16 +55,6 @@ class Home extends React.Component<Props, InternalState> {
 		},
 		zoom: 11
 	};
-
-	onChooseFile = (event: ChangeEvent<HTMLInputElement>) => {
-		const URL = window.URL;
-		const file: File = (event.target.files as FileList)[0];
-		const urlObj = URL.createObjectURL(file);
-		this.setState({
-			url: urlObj,
-			errorState: false
-		 })
-	}
 
 	onPlay = () => {
 		this.setState({ playing: true })
@@ -101,9 +90,9 @@ class Home extends React.Component<Props, InternalState> {
 				accessor: 'vin',
 				Cell: (props: any) => <span className='number'>{props.value}</span>
 			}, {
-				id: 'accidentTime',
+				id: 'accident',
 				Header: 'Accident Date',
-				accessor: (d: any) => d.accidentTime.date
+				accessor: (d: any) => d.accident
 			}, {
 				Header: (props: any) => <span>Action</span>,
 				accessor: 'vin',
@@ -145,7 +134,7 @@ class Home extends React.Component<Props, InternalState> {
 									<div style={{height: '40vw', paddingTop: '20px'}}>
 										<GoogleMapReact
 											style={{height: '400px'}}
-											bootstrapURLKeys={{key:''}}
+											bootstrapURLKeys={{key:'AIzaSyCm_W5Ft1HW1VOhqx-hOTSAN9n8Ryh75L8'}}
 											defaultZoom={12}
 											yesIWantToUseGoogleMapApiInternals
 											center={{lat: 12.97, lng: 77.59}}
@@ -157,14 +146,12 @@ class Home extends React.Component<Props, InternalState> {
 								</Tab>
 								<Tab eventKey="video" title="Video">
 									<div style={{height: '40vw', paddingTop: '20px'}}>
-										<input onChange={this.onChooseFile} type='file' />
-										<br/>
 										<br/>
 										{ !this.state.errorState && 
 										<ReactPlayer
-											url={this.state.url}
+											url={this.state.videoUrl}
 											className='react-player'
-											playing
+											playing = {false}
 											controls
 											width='450px'
 											height='400px'
@@ -197,7 +184,7 @@ class Home extends React.Component<Props, InternalState> {
 		this.setState({
 			popUp: true,
 			mapData: vehicleData[0].location,
-			video: vehicleData[0].video
+			videoUrl: vehicleData[0].videoUrl
 		});
 	}
 
@@ -205,12 +192,12 @@ class Home extends React.Component<Props, InternalState> {
 	public closeButton() {
 		this.setState({
 			popUp: false,
-			url: {}
+			videoUrl: ''
 		});
 	}
 	public componentDidMount() {
 		
-		axios.get('http://localhost:9000/vehicles')
+		axios.get('http://myapp-2.azurewebsites.net/listAll')
              .then( (response: any) => {
 				 this.setState({
 					data: response.data
