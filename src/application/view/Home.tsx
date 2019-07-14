@@ -69,14 +69,17 @@ class Home extends React.Component<Props, InternalState> {
 
 	renderMarkers(map: any, maps: any) {
 		const myLatLng = {
-			lat: 12,
-			lng: 45
+			lat: this.state.mapData.latitude,
+			lng: this.state.mapData.longitude
 		}
 		let marker = new maps.Marker({
 			position: myLatLng,
 			map,
-			title: 'Hello World!'
+			title: 'Accident Site!!!',
+			// animation: maps.Animation.BOUNCE
 		});
+		marker.setMap(map);
+		map.setCenter(myLatLng);
 	}
 
     render(){
@@ -100,6 +103,15 @@ class Home extends React.Component<Props, InternalState> {
 			}
 		];
 
+		const Marker = (props: any) => {
+			return (
+			<React.Fragment>
+				<div className="pin" />
+				<div className='pulse'></div>
+			</React.Fragment>
+			);
+		}
+
 		
         return(
 			<React.Fragment>
@@ -112,7 +124,7 @@ class Home extends React.Component<Props, InternalState> {
 						filterable
 						defaultFilterMethod={this.filterTable}
 						columns={columns}
-						defaultPageSize={10}
+						defaultPageSize={5}
 						className="-striped -highlight"
 					/>
 					<br />
@@ -135,12 +147,13 @@ class Home extends React.Component<Props, InternalState> {
 										<GoogleMapReact
 											style={{height: '400px'}}
 											bootstrapURLKeys={{key:'AIzaSyCm_W5Ft1HW1VOhqx-hOTSAN9n8Ryh75L8'}}
-											defaultZoom={12}
+											defaultZoom={0}
 											yesIWantToUseGoogleMapApiInternals
 											center={{lat: 12.97, lng: 77.59}}
 											resetBoundsOnResize = {true}
 											onGoogleApiLoaded={({map, maps}) => this.renderMarkers(map, maps)}
 										>
+											{false && <Marker lat={12.97} lng={77.59}/>}
 										</GoogleMapReact>	
 									</div>
 								</Tab>
