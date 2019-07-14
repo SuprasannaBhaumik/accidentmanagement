@@ -19,6 +19,7 @@ interface InternalState {
 	playing: boolean;
 	errorMessage: string;
 	errorState: boolean;
+	loading: boolean;
 }
 
 interface Props {
@@ -38,7 +39,8 @@ class Home extends React.Component<Props, InternalState> {
 			videoUrl: '',
 			playing: false,
 			errorMessage: '',
-			errorState: false
+			errorState: false,
+			loading: true
 		}
 
 		this.filterTable = this.filterTable.bind(this);
@@ -119,7 +121,8 @@ class Home extends React.Component<Props, InternalState> {
 					
 					
 					 <ReactTable
-						noDataText="No Accidents"
+					    loading = {this.state.loading}
+						noDataText=" "
 						data={this.state.data}
 						filterable
 						defaultFilterMethod={this.filterTable}
@@ -213,8 +216,8 @@ class Home extends React.Component<Props, InternalState> {
 		axios.get('https://myapp-2.azurewebsites.net/listAll')
              .then( (response: any) => {
 				 this.setState({
-					data: response.data
-
+					data: response.data,
+					loading: false
 				})
 			})
 			 .catch((error: any) => {
