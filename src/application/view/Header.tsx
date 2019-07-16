@@ -7,7 +7,7 @@ const Header = (props: Props) => {
     return (
         <React.Fragment>
             <div className="header">
-                <p className="content-center">Welcome to the Accident Management Portal</p>
+                <p className="content-center">Video Monitoring</p>
             </div>
         </React.Fragment>
     )
