@@ -149,7 +149,7 @@ class Home extends React.Component<Props, InternalState> {
 									<div style={{height: '40vw', paddingTop: '20px'}}>
 										<GoogleMapReact
 											style={{height: '400px'}}
-											bootstrapURLKeys={{key:'AIzaSyCm_W5Ft1HW1VOhqx-hOTSAN9n8Ryh75L8'}}
+											bootstrapURLKeys={{key:'AIzaSyA_4TafJPc4kKbOvLHibTfnFKkP1Az5QvM'}}
 											defaultZoom={0}
 											yesIWantToUseGoogleMapApiInternals
 											center={{lat: 12.97, lng: 77.59}}
