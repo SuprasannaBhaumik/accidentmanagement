@@ -213,7 +213,7 @@ class Home extends React.Component<Props, InternalState> {
 	}
 	public componentDidMount() {
 		
-		axios.get('https://myapp-2.azurewebsites.net/listAll')
+		axios.get('https://dtna-server.azurewebsites.net/listAll')
              .then( (response: any) => {
 				 this.setState({
 					data: response.data,
