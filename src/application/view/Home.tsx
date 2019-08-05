@@ -7,9 +7,11 @@ import Modal from 'react-bootstrap/Modal';
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import ReactPlayer from 'react-player';
-
 import GoogleMapReact from 'google-map-react';
-
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Nav from 'react-bootstrap/Nav';
+import Form from 'react-bootstrap/Form';
 interface InternalState {
 	data: any;
 	popUp: boolean;
@@ -20,6 +22,10 @@ interface InternalState {
 	errorMessage: string;
 	errorState: boolean;
 	loading: boolean;
+	forDtna: boolean;
+	forDepartureCheck: boolean;
+	licensePlate: string;
+	files: any;
 }
 
 interface Props {
@@ -40,7 +46,11 @@ class Home extends React.Component<Props, InternalState> {
 			playing: false,
 			errorMessage: '',
 			errorState: false,
-			loading: true
+			loading: true,
+			forDtna: false,
+			forDepartureCheck: true,
+			licensePlate: '',
+			files: []
 		}
 
 		this.filterTable = this.filterTable.bind(this);
@@ -48,6 +58,8 @@ class Home extends React.Component<Props, InternalState> {
 		this.closeButton = this.closeButton.bind(this);
 		this.playError = this.playError.bind(this);
 		this.renderMarkers = this.renderMarkers.bind(this);
+		this.onChange = this.onChange.bind(this);
+		this.upload = this.upload.bind(this);
 	}
 
 	static defaultProps = {
@@ -57,6 +69,21 @@ class Home extends React.Component<Props, InternalState> {
 		},
 		zoom: 11
 	};
+
+
+	upload = (event: any) => {
+		const newFiles = [...this.state.files, event.target.files[0] ];
+		this.setState({
+			files: newFiles
+		})
+	}
+
+	onChange = (event: any) => {
+		console.log(event.target.value);
+		this.setState({
+			licensePlate: event.target.value
+		});
+	}
 
 	onPlay = () => {
 		this.setState({ playing: true })
@@ -114,9 +141,21 @@ class Home extends React.Component<Props, InternalState> {
 			);
 		}
 
+
+		const tabs = [ 
+			{
+				'name':'Upload Departure Check',
+				'key':'1'
+			}, 
+			{	
+				'name':'View Results', 
+				'key':'2'
+			}
+		];
 		
         return(
 			<React.Fragment>
+				{ this.state.forDtna &&
 				<div className={'encloser'}>
 					
 					
@@ -183,7 +222,97 @@ class Home extends React.Component<Props, InternalState> {
 							</Tabs>
 						</Modal.Body>
 					</Modal>
-				</div>
+				</div>}
+
+				{
+					this.state.forDepartureCheck && 
+					
+					<Tab.Container id="left-tabs-example" defaultActiveKey="first">
+						<div style={{display:'flex', flexDirection:'row'}}>
+							<div style={{flex:'4', display:'flex', flexDirection:'row'}}>
+								<div style={{flex:'2'}} />
+								<div style={{flex:'3', alignItems:'center', display:'flex', flexDirection:'column'}}>
+									<div style={{flex:'3', minWidth:'20%'}} />
+									<div style={{flex:'3'}}>
+										<Nav variant="pills" className="flex-column">
+											<Nav.Item>
+												<Nav.Link eventKey="first">Add Departure Check</Nav.Link>
+											</Nav.Item>
+											<Nav.Item>
+												<Nav.Link eventKey="second">View Results</Nav.Link>
+											</Nav.Item>
+										</Nav>
+									</div>
+									<div style={{flex:'3'}} />
+								</div>
+
+
+							</div>
+							<div style={{flex:'8'}}>
+									<Row>
+										<Col sm={3}>
+										
+										</Col>
+										<Col sm={9}>
+										<Tab.Content>
+											<Tab.Pane eventKey="first">
+												<div style={{display: 'flex', flexDirection:'column', paddingTop: '20%'}} >
+													<div style={{flex: '1', display:'flex', flexDirection:'row', paddingBottom:'20px'}}>
+														<div style={{marginRight: '10px'}}>
+															<h4>License Plate: </h4>
+														</div>
+														<div>
+															<Form.Control type="text" placeholder="License Plate" value={this.state.licensePlate} onChange={this.onChange} />
+														</div>
+
+													</div>
+													<div style={{flex: '1', display:'flex', flexDirection:'row'}}>
+														<div style={{marginRight: '10px'}}>
+															<h4>Upload: </h4>
+														</div>
+														<div>
+															{this.state.files.length < 10 && <Form.Control type="file" onChange={this.upload} />}
+															{this.state.files.length === 10 && 
+															<span style={{color: 'red'}}>
+																You cannot upload more than 10 files
+															</span>}
+														</div>
+
+													</div>
+
+													{this.state.files.length > 0 && 
+													
+													<div style={{flex: '1', display:'flex', flexDirection:'row', flexWrap: 'wrap'}}>
+														
+														{this.state.files.map( (file: any, idx: number) => {
+															return (
+																<div key={idx} style={{marginRight: '5px', marginBottom: '5px'}}>
+																	<img src={URL.createObjectURL(file)} width={150} height={150}/>
+																</div>
+															)
+														})
+														}
+
+													</div>}
+												</div>
+
+
+
+
+
+											</Tab.Pane>
+											<Tab.Pane eventKey="second">
+												<span>Second div</span>
+											</Tab.Pane>
+										</Tab.Content>
+										</Col>
+									</Row>
+							</div>
+							<div style={{flex:'4'}}></div>
+						</div> 
+					</Tab.Container>
+
+				}
 			</React.Fragment>
         );
 	}
