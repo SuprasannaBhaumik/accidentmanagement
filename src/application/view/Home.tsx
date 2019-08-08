@@ -12,6 +12,10 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';
 import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import RemoveIcon from '../util/removeIcon';
+import Camera from 'react-camera';
+
 interface InternalState {
 	data: any;
 	popUp: boolean;
@@ -25,12 +29,13 @@ interface InternalState {
 	forDtna: boolean;
 	forDepartureCheck: boolean;
 	licensePlate: string;
-	files: any;
+	files: Blob[];
 }
 
 interface Props {
 	google: any;
 }
+
 
 class Home extends React.Component<Props, InternalState> {
 
@@ -60,6 +65,9 @@ class Home extends React.Component<Props, InternalState> {
 		this.renderMarkers = this.renderMarkers.bind(this);
 		this.onChange = this.onChange.bind(this);
 		this.upload = this.upload.bind(this);
+		this.removeImage = this.removeImage.bind(this);
+		this.takePicture = this.takePicture.bind(this);
+		this.submitForAnalysis = this.submitForAnalysis.bind(this);
 	}
 
 	static defaultProps = {
@@ -71,6 +79,50 @@ class Home extends React.Component<Props, InternalState> {
 	};
 
 
+	camera: any;
+	img: any;
+	src: any;
+
+	headers= {
+		'Content-Type': 'multipart/form-data',
+		'Access-Control-Allow-Origin': '*',
+		"Accept": "application/json",
+        "type": "formData"
+	}
+
+	async submitForAnalysis(){
+
+		const vehicleData = new FormData();
+
+		this.state.files.map( (file: Blob, index: number)=> {
+			vehicleData.append(`image${index}`, file);
+		})
+		vehicleData.append('license', this.state.licensePlate);
+		// vehicleData.append('images', this.state.files);
+		
+		await axios.post('http://localhost:8080/processImages', vehicleData, { headers: this.headers })
+		.then((response: any) => {
+			// something
+		}).catch((error: any) => {
+			console.log('not able to reach the server')
+		});
+
+
+	}
+
+	removeImage = (idx : number) => {
+		const newFiles = this.state.files.filter(
+			(file: any, index: number) => {
+				return index!== idx 
+			});
+		
+		this.setState({
+			files : newFiles
+		})
+
+	}
+	
+
 	upload = (event: any) => {
 		const newFiles = [...this.state.files, event.target.files[0] ];
 		this.setState({
@@ -79,7 +131,6 @@ class Home extends React.Component<Props, InternalState> {
 	}
 
 	onChange = (event: any) => {
-		console.log(event.target.value);
 		this.setState({
 			licensePlate: event.target.value
 		});
@@ -96,7 +147,31 @@ class Home extends React.Component<Props, InternalState> {
 		})
 	}
 
-	renderMarkers(map: any, maps: any) {
+	filterTable = (filter: Filter, row: any) => {
+		return String(row[filter.id]).indexOf(filter.value) > -1;
+	}
+
+	imageClicked = (vin: string) => {
+
+		// filter out the vehicle data from the vehicles
+        const vehicleData = this.state.data.filter((element: any) => element.vin === vin)
+
+		this.setState({
+			popUp: true,
+			mapData: vehicleData[0].location,
+			videoUrl: vehicleData[0].videoUrl
+		});
+	}
+
+
+	closeButton = () => {
+		this.setState({
+			popUp: false,
+			videoUrl: ''
+		});
+	}
+
+	renderMarkers = (map: any, maps: any) => {
 		const myLatLng = {
 			lat: this.state.mapData.latitude,
 			lng: this.state.mapData.longitude
@@ -232,7 +307,6 @@ class Home extends React.Component<Props, InternalState> {
 							<div style={{flex:'4', display:'flex', flexDirection:'row'}}>
 								<div style={{flex:'2'}} />
 								<div style={{flex:'3', alignItems:'center', display:'flex', flexDirection:'column'}}>
-									<div style={{flex:'3', minWidth:'20%'}} />
 									<div style={{flex:'3'}}>
 										<Nav variant="pills" className="flex-column">
 											<Nav.Item>
@@ -243,7 +317,6 @@ class Home extends React.Component<Props, InternalState> {
 											</Nav.Item>
 										</Nav>
 									</div>
-									<div style={{flex:'3'}} />
 								</div>
 
 
@@ -268,14 +341,26 @@ class Home extends React.Component<Props, InternalState> {
 													</div>
 													<div style={{flex: '1', display:'flex', flexDirection:'row'}}>
 														<div style={{marginRight: '10px'}}>
-															<h4>Upload: </h4>
+															<h4>Click Images: </h4>
 														</div>
 														<div>
-															{this.state.files.length < 10 && <Form.Control type="file" onChange={this.upload} />}
 															{this.state.files.length === 10 && 
 															<span style={{color: 'red'}}>
-																You cannot upload more than 10 files
-															</span>}
+																You cannot click more than 10 pictures
+															</span>
+															}
+
+															{this.state.files.length < 10 && 
+															<Camera style={{position: 'relative'}}
+																ref={(cam: any) => {
+																	this.camera = cam;
+																}}
+															>
+																<div style={{display: 'flex', position: 'absolute',	justifyContent: 'center', zIndex: 1, bottom: 0, width: '100%'}} onClick={this.takePicture}>
+            														<div style={{backgroundColor: '#fff', borderRadius: '50%', height: 56, width: 56, color: '#000', margin: 20}} />
+																</div>
+															</Camera>
+															}
 														</div>
 
 													</div>
@@ -287,6 +372,7 @@ class Home extends React.Component<Props, InternalState> {
 														{this.state.files.map( (file: any, idx: number) => {
 															return (
 																<div key={idx} style={{marginRight: '5px', marginBottom: '5px'}}>
+																	<RemoveIcon onClick={ ()=> this.removeImage(idx) } style={{top: '-54px', right: '-150px', backgroundColor: 'red'}}/>
 																	<img src={URL.createObjectURL(file)} width={150} height={150}/>
 																</div>
 															)
@@ -295,11 +381,9 @@ class Home extends React.Component<Props, InternalState> {
 
 													</div>}
 												</div>
-
-
-
-
-
+												<div style = {{flex: '1', justifyContent:'left'}}>
+													<Button type='button' variant="outline-primary" disabled={!this.state.licensePlate} onClick={() => this.submitForAnalysis()}>Submit</Button>
+												</div>
 											</Tab.Pane>
 											<Tab.Pane eventKey="second">
 												<span>Second div</span>
@@ -318,29 +402,18 @@ class Home extends React.Component<Props, InternalState> {
 	}
 	// "https://media.w3.org/2010/05/sintel/trailer_hd.mp4"
 	
-	public filterTable(filter: Filter, row: any) {
-		return String(row[filter.id]).indexOf(filter.value) > -1;
+	takePicture = () => {
+    	this.camera.capture()
+			.then( (blob: any) => {
+				const newFiles = [...this.state.files, blob ];
+				this.setState({
+					files: newFiles
+				});
+				//this.img.src = URL.createObjectURL(blob);
+				//this.img.onload = () => { URL.revokeObjectURL(this.src); }
+			})
 	}
 
-	public imageClicked(vin: string) {
-
-		// filter out the vehicle data from the vehicles
-        const vehicleData = this.state.data.filter((element: any) => element.vin === vin)
-
-		this.setState({
-			popUp: true,
-			mapData: vehicleData[0].location,
-			videoUrl: vehicleData[0].videoUrl
-		});
-	}
-
-
-	public closeButton() {
-		this.setState({
-			popUp: false,
-			videoUrl: ''
-		});
-	}
 	public componentDidMount() {
 		
 		axios.get('https://dtna-server.azurewebsites.net/listAll')
