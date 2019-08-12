@@ -16,6 +16,10 @@ import Button from 'react-bootstrap/Button';
 import RemoveIcon from '../util/removeIcon';
 import Camera from 'react-camera';
 
+import { VehicleImage } from '../model/VehicleImage';
+
+import VehicleImageTile from '../view/VehicleImageTile';
+
 interface InternalState {
 	data: any;
 	popUp: boolean;
@@ -30,6 +34,7 @@ interface InternalState {
 	forDepartureCheck: boolean;
 	licensePlate: string;
 	files: Blob[];
+	searchLicensePlate: string;
 }
 
 interface Props {
@@ -55,7 +60,8 @@ class Home extends React.Component<Props, InternalState> {
 			forDtna: false,
 			forDepartureCheck: true,
 			licensePlate: '',
-			files: []
+			files: [],
+			searchLicensePlate: ''
 		}
 
 		this.filterTable = this.filterTable.bind(this);
@@ -68,6 +74,7 @@ class Home extends React.Component<Props, InternalState> {
 		this.removeImage = this.removeImage.bind(this);
 		this.takePicture = this.takePicture.bind(this);
 		this.submitForAnalysis = this.submitForAnalysis.bind(this);
+		this.onChangeSearchBar = this.onChangeSearchBar.bind(this);
 	}
 
 	static defaultProps = {
@@ -98,11 +105,10 @@ class Home extends React.Component<Props, InternalState> {
 			vehicleData.append(`image${index}`, file);
 		})
 		vehicleData.append('license', this.state.licensePlate);
-		// vehicleData.append('images', this.state.files);
 		
 		await axios.post('http://localhost:8080/processImages', vehicleData, { headers: this.headers })
 		.then((response: any) => {
-			// something
+			
 		}).catch((error: any) => {
 			console.log('not able to reach the server')
 		});
@@ -133,6 +139,12 @@ class Home extends React.Component<Props, InternalState> {
 	onChange = (event: any) => {
 		this.setState({
 			licensePlate: event.target.value
+		});
+	}
+
+	onChangeSearchBar = (event: any) => {
+		this.setState({
+			searchLicensePlate: event.target.value
 		});
 	}
 
@@ -302,7 +314,7 @@ class Home extends React.Component<Props, InternalState> {
 				{
 					this.state.forDepartureCheck && 
 					
-					<Tab.Container id="left-tabs-example" defaultActiveKey="first">
+					<Tab.Container id="left-tabs-example" defaultActiveKey="second">
 						<div style={{display:'flex', flexDirection:'row'}}>
 							<div style={{flex:'4', display:'flex', flexDirection:'row'}}>
 								<div style={{flex:'2'}} />
@@ -386,7 +398,50 @@ class Home extends React.Component<Props, InternalState> {
 												</div>
 											</Tab.Pane>
 											<Tab.Pane eventKey="second">
-												<span>Second div</span>
+												<div style={{display: 'flex', flexDirection: 'column'}}>
+														<div style={{flex:'1', paddingTop: '20px'}}>
+														
+															<Form.Control type="text" placeholder="Enter License Plate" value={this.state.searchLicensePlate} onChange={this.onChangeSearchBar} />
+														
+														</div>
+														<div style={{flex:'1', paddingTop: '40px'}}>
+														
+														{false && <p>No Vehicles to show</p>}
+
+														{true && 
+															<VehicleImageTile 
+																imageUrl = {'this is the image'}
+																license = {'KA 03 HR 4627'}
+																time = {'20.08.2019 10:45:00'}
+																findings = {[
+																	{
+																		isPredicted: true,
+																		image: 'https://dxorbit.blob.core.windows.net/dxorbit/dentDec_4.png',
+																		result: [
+																			{
+																				classification: 'dent',
+																				score: 0.3
+																			},
+																			{
+																				classification: 'brokenGlass',
+																				score: 0.3
+																			}
+																		]
+																	},
+																	{
+																		isPredicted: false,
+																		image: 'https://dxorbit.blob.core.windows.net/dxorbit/dentDec_2.png',
+																		result:[]
+																	}
+																]}
+															/>
+
+														}
+														
+														</div>
+												
+												
+												</div>
 											</Tab.Pane>
 										</Tab.Content>
 										</Col>
@@ -401,7 +456,19 @@ class Home extends React.Component<Props, InternalState> {
         );
 	}
 	// "https://media.w3.org/2010/05/sintel/trailer_hd.mp4"
-	
+	/*this.state.vehicleImages.map( (vehicle: VehicleImage) => {
+		return (
+			<VehicleImageTile
+				imageUrl = {vehicle.imageUrl}
+				license = {vehicle.license}
+				time = {vehicle.updateDt}
+				findings = {vehicle.findings}
+			/>
+		)
+	})*/
+
+
+
 	takePicture = () => {
     	this.camera.capture()
 			.then( (blob: any) => {
