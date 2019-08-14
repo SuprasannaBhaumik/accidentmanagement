@@ -107,3 +107,19 @@
 	transform: translateY(0) rotate(-45deg);
   }
 }
+
+
+.overlay{
+	top: 0;
+	left: 0; 
+	width: 100%; 
+	height: 100%; 
+	z-index: 10000; 
+	opacity: 0.2; 
+	position: relative;
+	pointer-events:none;
+}
+
+.z0{
+	z-index: 0;
+}

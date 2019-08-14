@@ -29,6 +29,7 @@
     "react-google-login": "^5.0.4",
     "react-google-maps": "^9.4.5",
     "react-linkedin-login-oauth2": "^1.0.6",
+    "react-loading-overlay": "^1.0.1",
     "react-navigation": "^3.11.0",
     "react-player": "^1.11.1",
     "react-redux": "^7.1.0",

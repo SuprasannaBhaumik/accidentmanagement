@@ -1,15 +1,14 @@
-
 import React from 'react';
 import { Finding } from '../model/Finding';
+import { Image } from '../model/Image';
 
 import Modal from 'react-bootstrap/Modal';
-import {Result} from '../model/Result';
 
 interface Props {
 	imageUrl: string;
 	license: string;
-	time: string;
-	findings: Finding[];
+	uploadedDate: string;
+	images: Image[];
 }
 
 interface InternalState {
@@ -48,12 +47,12 @@ class VehicleImageTile extends React.Component<Props, InternalState> {
 
 	render() {
 		return(
-			<div style={{display:'flex', flexDirection:'row', borderRadius: '20px', boxShadow: '0 0 12px #b3cccc'}}>
+			<div style={{display:'flex', flexDirection:'row', borderRadius: '20px', boxShadow: '0 0 12px #b3cccc', marginTop: '25px', marginBottom: '15px'}}>
 				<div style={{flex:'2', display:'flex', flexDirection: 'column'}}>
 					<div style={{flex: '1', textAlign: 'left', marginLeft: '15px', fontWeight: 'bold', marginTop: '15px'}}>{this.props.license}</div>
 					<div style={{flex: '2', display: 'flex', flexDirection: 'row'}}>
 						<div style={{flex: '1', alignItems: 'center', textAlign: 'left', marginLeft: '15px'}}>
-							{this.props.time}
+							{this.props.uploadedDate}
 						</div>
 						<div style={{flex: '1'}}>
 							<img
@@ -85,44 +84,34 @@ class VehicleImageTile extends React.Component<Props, InternalState> {
 
 						<Modal.Body>
 							<div style={{display: 'flex', flexDirection: 'column'}}>
-							{this.props.findings.length !== 0 && 
-								this.props.findings.map( (object: Finding) => {
+								{ this.props.images.map ( (image: Image, idx: number) => {
 									return (
-										<div style={{ float:'right', display: 'flex', flexDirection: 'row', paddingBottom: '5px'}}> 
+										<div key={idx} style={{ float:'right', display: 'flex', flexDirection: 'row', paddingBottom: '5px'}}>
 											<div style={{flex:'1'}}>
-												<img src={object.image} height={150} width={150}/>
-											</div>								
-											<ul>			
-											{
-												object.result.length !== 0 && 
-												object.result.map( (x: Result) => {
+												<img src={image.imageUrl} height={150} width={150}/>
+											</div>
+											<ul>
+												{image.prediction.length > 0 && image.prediction.map((pred: Finding, index: number)=> {
 													return (
-														<li style={{flex:'1'}}>
-															{x.classification}
-														</li>
+														<li key={index}>{pred.classification}</li>
 													)
 												})
-											}
-											{
-												!object.isPredicted && 
-												<li style={{flex:'1'}}>
-													No findings
-												</li>
-											}
+												}
+												{
+													image.prediction.length === 0 && 
+													<li>{'No flaws detected'}</li>
+												}
 											</ul>
 										</div>
 									)
-								})
-						
-						
-							}
+								 })
+								}
 							</div>
 						</Modal.Body>
                     </Modal>
-				
 				}
 			</div>
-		);
+		)
 	}
 }
 
