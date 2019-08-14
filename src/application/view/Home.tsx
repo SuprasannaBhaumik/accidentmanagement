@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
 import ReactTable, { Filter } from "react-table";
 import "react-table/react-table.css";
 // import { MapContainer } from './MapContainer';
@@ -15,7 +15,6 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import RemoveIcon from '../util/removeIcon';
 import Camera from 'react-camera';
-import Spinner from 'react-bootstrap/Spinner';
 import { VehicleImage } from '../model/VehicleImage';
 
 import VehicleImageTile from '../view/VehicleImageTile';
@@ -37,6 +36,7 @@ interface InternalState {
 	searchLicensePlate: string;
 	activeTab: string;
 	vehicleImages: VehicleImage[];
+	searchVehicles: VehicleImage[];
 	loadingPrediction: boolean;
 }
 
@@ -67,6 +67,7 @@ class Home extends React.Component<Props, InternalState> {
 			searchLicensePlate: '',
 			activeTab: "first",
 			vehicleImages: [],
+			searchVehicles: [],
 			loadingPrediction: false
 		}
 
@@ -80,7 +81,7 @@ class Home extends React.Component<Props, InternalState> {
 		this.removeImage = this.removeImage.bind(this);
 		this.takePicture = this.takePicture.bind(this);
 		this.submitForAnalysis = this.submitForAnalysis.bind(this);
-		this.onChangeSearchBar = this.onChangeSearchBar.bind(this);
+		this.searchWith = this.searchWith.bind(this);
 		this.redirectTab = this.redirectTab.bind(this);
 		this.toggleLoader = this.toggleLoader.bind(this);
 	}
@@ -140,7 +141,8 @@ class Home extends React.Component<Props, InternalState> {
 		await axios.get('http://localhost:8080/getVehicleImageData')
 			.then( (response: any) => {
 				this.setState( {
-					vehicleImages: response.data
+					vehicleImages: response.data,
+					searchVehicles: response.data
 				})
 			}).catch((error: any)=> {
 				console.log(error);
@@ -180,12 +182,6 @@ class Home extends React.Component<Props, InternalState> {
 	onChange = (event: any) => {
 		this.setState({
 			licensePlate: event.target.value
-		});
-	}
-
-	onChangeSearchBar = (event: any) => {
-		this.setState({
-			searchLicensePlate: event.target.value
 		});
 	}
 
@@ -441,15 +437,15 @@ class Home extends React.Component<Props, InternalState> {
 											<Tab.Pane eventKey="second">
 												<div style={{display: 'flex', flexDirection: 'column'}}>
 														<div style={{flex:'1', paddingTop: '20px'}}>
-															<Form.Control type="text" placeholder="Enter License Plate" value={this.state.searchLicensePlate} onChange={this.onChangeSearchBar} />
+															<Form.Control type="text" placeholder="Enter License Plate" value={this.state.searchLicensePlate} onChange={this.searchWith} />
 														</div>
 														<div style={{flex:'1', paddingTop: '40px'}}>
-															{this.state.vehicleImages.length === 0 && 
+															{this.state.searchVehicles.length === 0 && 
 																<p>No results to display</p>
 															}
-															{this.state.vehicleImages.length > 0  &&  
+															{this.state.searchVehicles.length > 0  &&  
 																<>
-																	{this.state.vehicleImages.map( (vehicle: VehicleImage, idx: number) => {
+																	{this.state.searchVehicles.map( (vehicle: VehicleImage, idx: number) => {
 																		return (
 																			<VehicleImageTile
 																				key={idx}
@@ -478,32 +474,20 @@ class Home extends React.Component<Props, InternalState> {
 			</React.Fragment>
         );
 	}
-	// "https://media.w3.org/2010/05/sintel/trailer_hd.mp4"
-	/*this.state.vehicleImages.map( (vehicle: VehicleImage) => {
-		return (
-			<VehicleImageTile
-				imageUrl = {vehicle.imageUrl}
-				license = {vehicle.license}
-				time = {vehicle.updateDt}
-				findings = {vehicle.findings}
-			/>
-		)
-	})*/
-
-
+	
 	searchWith(event: any) {
-		/*const searchField = event.target.value;
-		let vehicleImage = this.props.books;
-		books = books.filter( (b: Book) => {
-			let title = b.title;
-			let author = b.author;
-			if ( title.indexOf(searchField) > -1 || author.indexOf(searchField) > -1) {
+		const searchField = event.target.value;
+		let searchVehicles = this.state.vehicleImages;
+		searchVehicles = searchVehicles.filter( (vehicle: VehicleImage) => {
+			let license = vehicle.license;
+			if ( license.indexOf(searchField) > -1) {
 				return true;
 			}
 		});
 		this.setState({
-			books
-		});*/
+			searchVehicles,
+			searchLicensePlate: event.target.value
+		});
 	}
 
 	takePicture = () => {
@@ -539,16 +523,3 @@ class Home extends React.Component<Props, InternalState> {
 }
 
 export default Home;
-
-
-/*return (
-																	this.state.vehicleImages.map( (vehicle: VehicleImage, idx: number) => {
-																		<VehicleImageTile
-																			key={idx}
-																			imageUrl = {vehicle.imageUrl}
-																			license = {vehicle.license}
-																			time = {vehicle.uploadedDate}
-																			findings = {vehicle.prediction}
-																		/>
-																	)
-																})*/
