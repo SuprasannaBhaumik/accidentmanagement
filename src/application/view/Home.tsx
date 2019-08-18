@@ -116,7 +116,7 @@ class Home extends React.Component<Props, InternalState> {
 		})
 		vehicleData.append('license', this.state.licensePlate);
 		
-		await axios.post('http://localhost:8080/processImages', vehicleData, { headers: this.headers })
+		await axios.post('https://dtna-server.azurewebsites.net/processImages', vehicleData, { headers: this.headers })
 		.then((response: any) => {
 			// on success redirect to the first tab and make another axios call to fetch the data for the vehicle
 			console.log(response);
@@ -138,7 +138,7 @@ class Home extends React.Component<Props, InternalState> {
 
 
 	async fetchAllVehicleData () {
-		await axios.get('http://localhost:8080/getVehicleImageData')
+		await axios.get('https://dtna-server.azurewebsites.net/getVehicleImageData')
 			.then( (response: any) => {
 				this.setState( {
 					vehicleImages: response.data,
@@ -190,6 +190,7 @@ class Home extends React.Component<Props, InternalState> {
 	}
 
 	playError = (error: any) => {
+		console.log(error);
 		this.setState({
 			errorMessage :'No video to display',
 			errorState: true
@@ -469,7 +470,6 @@ class Home extends React.Component<Props, InternalState> {
 							<div style={{flex:'4'}}></div>
 						</div> 
 					</Tab.Container>
-
 				}
 			</React.Fragment>
         );
@@ -497,8 +497,6 @@ class Home extends React.Component<Props, InternalState> {
 				this.setState({
 					files: newFiles
 				});
-				//this.img.src = URL.createObjectURL(blob);
-				//this.img.onload = () => { URL.revokeObjectURL(this.src); }
 			})
 	}
 
@@ -514,12 +512,7 @@ class Home extends React.Component<Props, InternalState> {
 			 .catch((error: any) => {
 				 console.log('error occured');
 			 })
-
-
-		//fetchAllVehicleData();
-
 	}
-
 }
 
 export default Home;
