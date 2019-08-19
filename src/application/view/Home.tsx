@@ -16,6 +16,7 @@ import Button from 'react-bootstrap/Button';
 import RemoveIcon from '../util/removeIcon';
 import Camera from 'react-html5-camera-photo';
 import 'react-html5-camera-photo/build/css/index.css';
+import { FACING_MODES } from 'jslib-html5-camera-photo';
 
 import { VehicleImage } from '../model/VehicleImage';
 
@@ -406,6 +407,8 @@ class Home extends React.Component<Props, InternalState> {
 															{this.state.files.length < 10 && 
 															<Camera
 																onTakePhoto = { (dataUri: any) => { this.onTakePhoto(dataUri); } }
+																idealFacingMode = {FACING_MODES.ENVIRONMENT}
+																isMaxResolution = {true}
 															/>
 															}
 														</div>
