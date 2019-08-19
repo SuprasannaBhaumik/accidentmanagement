@@ -14,7 +14,9 @@ import Nav from 'react-bootstrap/Nav';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import RemoveIcon from '../util/removeIcon';
-import Camera from 'react-camera';
+import Camera from 'react-html5-camera-photo';
+import 'react-html5-camera-photo/build/css/index.css';
+
 import { VehicleImage } from '../model/VehicleImage';
 
 import VehicleImageTile from '../view/VehicleImageTile';
@@ -84,6 +86,7 @@ class Home extends React.Component<Props, InternalState> {
 		this.searchWith = this.searchWith.bind(this);
 		this.redirectTab = this.redirectTab.bind(this);
 		this.toggleLoader = this.toggleLoader.bind(this);
+		this.onTakePhoto = this.onTakePhoto.bind(this);
 	}
 
 	static defaultProps = {
@@ -401,15 +404,9 @@ class Home extends React.Component<Props, InternalState> {
 															}
 
 															{this.state.files.length < 10 && 
-															<Camera style={{position: 'relative'}}
-																ref={(cam: any) => {
-																	this.camera = cam;
-																}}
-															>
-																<div style={{display: 'flex', position: 'absolute',	justifyContent: 'center', zIndex: 1, bottom: 0, width: '100%'}} onClick={this.takePicture}>
-            														<div style={{backgroundColor: '#fff', borderRadius: '50%', height: 56, width: 56, color: '#000', margin: 20}} />
-																</div>
-															</Camera>
+															<Camera
+																onTakePhoto = { (dataUri: any) => { this.onTakePhoto(dataUri); } }
+															/>
 															}
 														</div>
 
@@ -423,7 +420,7 @@ class Home extends React.Component<Props, InternalState> {
 															return (
 																<div key={idx} style={{marginRight: '5px', marginBottom: '5px'}}>
 																	<RemoveIcon onClick={ ()=> this.removeImage(idx) } style={{top: '-54px', right: '-150px', backgroundColor: 'red'}}/>
-																	<img src={URL.createObjectURL(file)} width={150} height={150}/>
+																	<img src={file} width={150} height={150}/>
 																</div>
 															)
 														})
@@ -489,6 +486,16 @@ class Home extends React.Component<Props, InternalState> {
 			searchLicensePlate: event.target.value
 		});
 	}
+
+
+	onTakePhoto = (dataUri: any) => {
+		const newFiles = [...this.state.files, dataUri ];
+		this.setState({
+			files: newFiles
+		});
+	}
+
+
 
 	takePicture = () => {
     	this.camera.capture()
