@@ -409,6 +409,7 @@ class Home extends React.Component<Props, InternalState> {
 																onTakePhoto = { (dataUri: any) => { this.onTakePhoto(dataUri); } }
 																idealFacingMode = {FACING_MODES.ENVIRONMENT}
 																isMaxResolution = {true}
+																isImageMirror = {false}
 															/>
 															}
 														</div>
